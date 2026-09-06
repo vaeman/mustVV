@@ -13,10 +13,10 @@
 <h2>Methodology</h2>
 
 <p>Our Model works on 3 independent data sources: </p>
-<li>
-  <ul><p>"HELLO"</p></ul>
-  <ul><p>"eraaraasfas"</p></ul>
-</li>
+  1. Fire Data from Satellites
+  2. Local sensor data
+  3. Wind Speeds
+
 
 <h2>Output</h2>
 
