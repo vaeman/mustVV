@@ -11,5 +11,6 @@
 
 <h2>Methodology</h2>
 
-<img href="output.py">
-<p></p>
+<img width="1389" height="790" alt="image" src="https://github.com/user-attachments/assets/7cc7569a-97c7-41a5-b914-2c4eb343839f" />
+
+<p>Graph showing the prediction data for the next 72 hours.</p>
