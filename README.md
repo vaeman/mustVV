@@ -9,8 +9,13 @@
 
 <p>Our AQI and weather forecasting system aims on accurately predicting the Air Quality data on an hourly basis for the next 72 hours, by leveraging the AQI data from local sensors (Mandir Marg Monitoring System), fire information from <a href="https://modis.gsfc.nasa.gov/">satellite data</a>. The prediction is done by a gradient boosting model trained on <a href="openaq.org">data</a> from 2020-2022.</p>
 
+
 <h2>Methodology</h2>
+
+<p>The model works on feeding the data with a time </p>
+
+<h2>Output</h2>
 
 <img width="1389" height="790" alt="image" src="https://github.com/user-attachments/assets/7cc7569a-97c7-41a5-b914-2c4eb343839f" />
 
-<p>Graph showing the prediction data for the next 72 hours.</p>
+<p>Graph showing the forecast data for the next 72 hours.</p>
