@@ -5,3 +5,7 @@
 
 <h2>Overview</h2>
 
+<p>Due to the unfortunate geographical position, phenomena such as atmospheric inversion and agricultural practices such as stubble burning, Delhi has become notorious for it's horrendous air quality.</p>
+
+<p>Our AQI and weather forecasting system aims on accurately predicting the Air Quality data on an hourly basis for the next 72 hours, by leveraging the AQI data from local sensors, fire information from satellite data. The prediction is done by a gradient boosting model trained on <a href="openaq.org">data</a> from 2020-2022</p>
+
