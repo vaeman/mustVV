@@ -1,6 +1,5 @@
 (function () {
   "use strict";
-
   const AQI_SCALE = [
     { key: "green",  min: 0,   max: 50,  label: "Good",                         color: "--aqi-green",
       desc: "Air quality is satisfactory and poses little or no risk." },
@@ -15,21 +14,16 @@
     { key: "maroon", min: 301, max: Infinity, label: "Severe",                  color: "--aqi-maroon",
       desc: "Affects healthy people and seriously impacts those with existing conditions. Stay indoors." }
   ];
-
   const POLLUTANTS = ["PM2.5", "PM10", "NO2", "O3", "CO"];
   const COMPASS_16 = ["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"];
-
   const root = document.documentElement;
   const rootStyles = getComputedStyle(root);
-
   function categoryFor(value) {
     return AQI_SCALE.find(c => value >= c.min && value <= c.max) || AQI_SCALE[AQI_SCALE.length - 1];
   }
-
   function hexOf(cssVarName) {
     return rootStyles.getPropertyValue(cssVarName).trim();
   }
-
   function hexToRgba(hex, alpha) {
     const h = hex.replace("#", "");
     const r = parseInt(h.substring(0, 2), 16);
@@ -37,7 +31,6 @@
     const b = parseInt(h.substring(4, 6), 16);
     return `rgba(${r}, ${g}, ${b}, ${alpha})`;
   }
-
   function ordinalSuffix(n) {
     const rem100 = n % 100;
     if (rem100 >= 11 && rem100 <= 13) return n + "th";
@@ -48,19 +41,15 @@
       default: return n + "th";
     }
   }
-
   const SHORT_MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"];
-
   function formatShortDate(date) {
     const day = ordinalSuffix(date.getDate());
     const month = SHORT_MONTHS[date.getMonth()];
     return `${day} ${month}, ${date.getFullYear()}`;
   }
-
   const themeToggle = document.getElementById("themeToggle");
   const iconSun = document.getElementById("themeIconSun");
   const iconMoon = document.getElementById("themeIconMoon");
-
   function applyTheme(theme) {
     root.setAttribute("data-theme", theme);
     const isDark = theme === "dark";
@@ -69,103 +58,72 @@
     iconSun.style.display = isDark ? "none" : "block";
     iconMoon.style.display = isDark ? "block" : "none";
   }
-
   function initTheme() {
     const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
     applyTheme(prefersDark ? "dark" : "light");
   }
-
   themeToggle.addEventListener("click", () => {
     const next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
     applyTheme(next);
   });
-
   initTheme();
-
   function setAccent(category) {
     const hex = hexOf(category.color);
     root.style.setProperty("--accent", hex);
     root.style.setProperty("--accent-soft", hexToRgba(hex, 0.14));
   }
-
   const scaleBarsEl = document.getElementById("scaleBars");
   const BAR_MIN_HEIGHT = 46;
   const BAR_MAX_HEIGHT = 196;
-
   function barHeightFor(index, total) {
     const t = index / (total - 1);
     const eased = Math.pow(t, 1.65);
     return BAR_MIN_HEIGHT + (BAR_MAX_HEIGHT - BAR_MIN_HEIGHT) * eased;
   }
-
   function buildScaleBars() {
     scaleBarsEl.innerHTML = "";
     AQI_SCALE.forEach((cat, i) => {
       const bar = document.createElement("div");
       bar.className = "scale_bar";
       bar.dataset.key = cat.key;
-
       const label = document.createElement("span");
       label.className = "scale_bar_label";
       label.textContent = cat.label;
-
       const column = document.createElement("div");
       column.className = "scale_bar_column";
       column.style.background = hexOf(cat.color);
       column.style.height = barHeightFor(i, AQI_SCALE.length) + "px";
-
       const range = document.createElement("span");
       range.className = "scale_bar_range";
       range.textContent = cat.max === Infinity ? `${cat.min}+` : `${cat.min}-${cat.max}`;
-
       bar.append(label, column, range);
       scaleBarsEl.appendChild(bar);
     });
   }
-
   function updateScaleBars(category) {
     [...scaleBarsEl.children].forEach(bar => {
       bar.classList.toggle("is_active", bar.dataset.key === category.key);
     });
   }
-
   buildScaleBars();
-
   const historyTableBody = document.getElementById("historyTableBody");
   const historyTempHeader = document.getElementById("historyTempHeader");
   const HISTORY_DAYS = 3;
   let historyData = [];
-
-<<<<<<< HEAD
   async function buildHistoryData() {
     const res = await fetch(`/api/history?days=${HISTORY_DAYS}`);
     if (!res.ok) throw new Error("history fetch failed");
     const data = await res.json();
     historyData = data.map(d => ({ date: new Date(d.date), aqi: d.aqi, tempC: d.tempC }));
-=======
-  function buildHistoryData() {
-    historyData = [];
-    let aqiWalk = liveReading ? liveReading.aqi : 150;
-    for (let i = 1; i <= HISTORY_DAYS; i++) {
-      const date = new Date();
-      date.setDate(date.getDate() - i);
-      aqiWalk = Math.max(20, Math.min(400, aqiWalk + (Math.random() * 60 - 30)));
-      const tempC = 24 + Math.round(Math.random() * 10 - 5);
-      historyData.push({ date, aqi: Math.round(aqiWalk), tempC });
-    }
->>>>>>> 9c111cf19b5e87c6107cdd85d022257c3ca1aac0
   }
-
   function renderHistoryTable() {
     historyTempHeader.textContent = `Temperature (${unitSymbol(activeUnit)})`;
     historyTableBody.innerHTML = "";
     historyData.forEach(entry => {
       const tr = document.createElement("tr");
-
       const dateTd = document.createElement("td");
       dateTd.className = "history_date";
       dateTd.textContent = formatShortDate(entry.date);
-
       const aqiTd = document.createElement("td");
       aqiTd.className = "history_aqi";
       const category = categoryFor(entry.aqi);
@@ -176,19 +134,15 @@
       dot.style.background = hexOf(category.color);
       inner.append(dot, document.createTextNode(String(entry.aqi)));
       aqiTd.appendChild(inner);
-
       const tempTd = document.createElement("td");
       tempTd.className = "history_temp";
       tempTd.textContent = `${Math.round(convertTemp(entry.tempC, activeUnit))}${unitSymbol(activeUnit)}`;
-
       tr.append(dateTd, aqiTd, tempTd);
       historyTableBody.appendChild(tr);
     });
   }
-
   const aqiNumberEl = document.getElementById("aqiNumber");
   let currentDisplayed = 0;
-
   function animateNumber(target, duration = 700) {
     const start = currentDisplayed;
     const startTime = performance.now();
@@ -202,27 +156,22 @@
     }
     requestAnimationFrame(tick);
   }
-
   const thermoFill = document.getElementById("thermoFill");
   const thermoBulb = document.getElementById("thermoBulb");
   const tempValueEl = document.getElementById("tempValue");
   const tempUnitLabelEl = document.getElementById("tempUnitLabel");
   const feelsLikeEl = document.getElementById("feelsLike");
   const tempUnitSwitch = document.getElementById("tempUnitSwitch");
-
   const TUBE_TOP_Y = 24;
   const TUBE_BOTTOM_Y = 150;
   const TEMP_MIN_C = -5;
   const TEMP_MAX_C = 48;
-
   const TEMP_COLOR_COLD = { r: 0x2E, g: 0x7D, b: 0xE1 };
   const TEMP_COLOR_MID  = { r: 0xE8, g: 0xB9, b: 0x23 };
   const TEMP_COLOR_HOT  = { r: 0xE5, g: 0x42, b: 0x3C };
-
   let currentTempC = 25;
   let currentFeelsC = 25;
   let activeUnit = "C";
-
   function convertTemp(celsius, unit) {
     if (unit === "F") return celsius * 9 / 5 + 32;
     if (unit === "K") return celsius + 273.15;
@@ -231,9 +180,7 @@
   function unitSymbol(unit) {
     return unit === "K" ? "K" : `°${unit}`;
   }
-
   function lerp(a, b, t) { return a + (b - a) * t; }
-
   function tempColorFor(pct) {
     let c1, c2, localT;
     if (pct <= 0.5) {
@@ -246,7 +193,6 @@
     const b = Math.round(lerp(c1.b, c2.b, localT));
     return `rgb(${r}, ${g}, ${b})`;
   }
-
   function renderThermometer() {
     const clamped = Math.max(TEMP_MIN_C, Math.min(TEMP_MAX_C, currentTempC));
     const pct = (clamped - TEMP_MIN_C) / (TEMP_MAX_C - TEMP_MIN_C);
@@ -254,18 +200,15 @@
     const fillY = TUBE_BOTTOM_Y - fillHeight;
     thermoFill.setAttribute("y", fillY.toFixed(1));
     thermoFill.setAttribute("height", fillHeight.toFixed(1));
-
     const displayTemp = convertTemp(currentTempC, activeUnit);
     const displayFeels = convertTemp(currentFeelsC, activeUnit);
     tempValueEl.textContent = Math.round(displayTemp);
     tempUnitLabelEl.textContent = unitSymbol(activeUnit);
     feelsLikeEl.textContent = `${Math.round(displayFeels)}${unitSymbol(activeUnit)}`;
-
     const tempHex = tempColorFor(pct);
     thermoFill.style.fill = tempHex;
     thermoBulb.style.fill = tempHex;
   }
-
   tempUnitSwitch.addEventListener("click", (e) => {
     const btn = e.target.closest(".unit_btn");
     if (!btn) return;
@@ -274,48 +217,28 @@
     renderThermometer();
     renderHistoryTable();
   });
-
   const windNeedle = document.getElementById("windNeedle");
   const windSpeedEl = document.getElementById("windSpeed");
   const windDirEl = document.getElementById("windDir");
-
   function compassLabel(deg) {
     const idx = Math.round(deg / 22.5) % 16;
     return COMPASS_16[idx];
   }
-
   function renderWind(speedKmh, directionDeg) {
     windSpeedEl.textContent = Math.round(speedKmh);
     windDirEl.textContent = compassLabel(directionDeg);
     windNeedle.style.transform = `rotate(${directionDeg + 180}deg)`;
   }
-
-<<<<<<< HEAD
   async function getCurrentReading() {
     const res = await fetch("/api/current");
     if (!res.ok) throw new Error("current fetch failed");
     return res.json();
-=======
-  function getCurrentReading() {
-    const aqi = 150 + Math.round(Math.sin(Date.now() / 5.4e6) * 90 + (Math.random() * 20 - 10));
-    return {
-      aqi: Math.max(15, aqi),
-      pollutant: POLLUTANTS[Math.floor(Math.random() * POLLUTANTS.length)],
-      tempC: 26 + Math.round(Math.random() * 8 - 4),
-      feelsC: 27 + Math.round(Math.random() * 8 - 4),
-      windSpeed: 6 + Math.random() * 14,
-      windDir: Math.random() * 360
-    };
->>>>>>> 9c111cf19b5e87c6107cdd85d022257c3ca1aac0
   }
-
   const aqiCategoryEl = document.getElementById("aqiCategory");
   const aqiPollutantEl = document.getElementById("aqiPollutant");
   const aqiDescriptionEl = document.getElementById("aqiDescription");
   const lastUpdatedEl = document.getElementById("lastUpdated");
-
   let liveReading = null;
-
   function renderCurrent(reading, opts) {
     opts = opts || {};
     const category = categoryFor(reading.aqi);
@@ -325,12 +248,10 @@
     aqiCategoryEl.textContent = category.label;
     aqiPollutantEl.textContent = reading.pollutant;
     aqiDescriptionEl.textContent = category.desc;
-
     currentTempC = reading.tempC;
     currentFeelsC = reading.feelsC;
     renderThermometer();
     renderWind(reading.windSpeed, reading.windDir);
-
     if (opts.preview) {
       lastUpdatedEl.textContent = opts.previewLabel;
     } else {
@@ -338,7 +259,6 @@
       lastUpdatedEl.textContent = "Updated at " + now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
     }
   }
-
   const timelineEl = document.getElementById("timeline");
   const timelineScrollEl = document.getElementById("timelineScroll");
   const timelineTrack = document.getElementById("timelineTrack");
@@ -353,29 +273,24 @@
   const SCALE_MAX = 700;
   const GRID_STEPS = [0, 100, 200, 300, 400, 500, 600, 700];
   const PX_PER_POINT = 34;
-
   const RANGE_LABELS = {
     next24: "the next 24 hours",
     next72: "the next 72 hours"
   };
-
   function buildYAxisAndGrid() {
     timelineYAxis.innerHTML = "";
     timelineGrid.innerHTML = "";
     GRID_STEPS.forEach(value => {
       const bottomPct = (value / SCALE_MAX) * 100;
-
       const label = document.createElement("span");
       label.style.bottom = bottomPct + "%";
       label.textContent = value;
       timelineYAxis.appendChild(label);
-
       const line = document.createElement("span");
       line.style.bottom = bottomPct + "%";
       timelineGrid.appendChild(line);
     });
   }
-
   function pointFrom(d) {
     const date = new Date(d.datetime);
     return {
@@ -390,50 +305,13 @@
       pollutant: d.pollutant
     };
   }
-
   async function buildForecast(range) {
     const hours = range === "next72" ? 72 : 24;
     const res = await fetch(`/api/forecast?hours=${hours}`);
     if (!res.ok) throw new Error("forecast fetch failed");
     const data = await res.json();
     return data.map(pointFrom);
-
-  function walk(value) {
-    return Math.max(20, Math.min(430, value + (Math.random() * 50 - 25)));
   }
-
-  function pointFrom(date, value, hoursFromNow) {
-    return {
-      aqi: Math.round(value),
-      label: String(hoursFromNow).padStart(2, "0"),
-      fullLabel: date.toLocaleDateString([], { weekday: "long", month: "short", day: "numeric" }) +
-        ", " + date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }),
-      tempC: liveReading.tempC + Math.round(Math.random() * 6 - 3),
-      feelsC: liveReading.feelsC + Math.round(Math.random() * 6 - 3),
-      windSpeed: 4 + Math.random() * 16,
-      windDir: Math.random() * 360,
-      pollutant: POLLUTANTS[Math.floor(Math.random() * POLLUTANTS.length)]
-    };
-  }
-
-  function buildContinuousHours(count) {
-    const points = [];
-    let value = liveReading.aqi;
-    for (let i = 0; i < count; i++) {
-      value = walk(value);
-      const date = new Date();
-      date.setMinutes(0, 0, 0);
-      date.setHours(date.getHours() + i);
-      points.push(pointFrom(date, value, i));
-    }
-    return points;
-  }
-
-  function buildForecast(range) {
-    return range === "next72" ? buildContinuousHours(72) : buildContinuousHours(24);
-
-  }
-
   function renderTimeline(points) {
     timelineTrack.innerHTML = "";
     timelineLabels.innerHTML = "";
@@ -441,7 +319,6 @@
     const ns = "http://www.w3.org/2000/svg";
     timelineLine.setAttribute("viewBox", "0 0 100 100");
     timelineLine.innerHTML = "";
-
     const isFit = currentRange === "next24";
     if (isFit) {
       timelineEl.style.width = "100%";
@@ -451,14 +328,12 @@
       timelineEl.style.minWidth = Math.max(720, points.length * PX_PER_POINT) + "px";
     }
     timelineScrollEl.classList.toggle("no_scroll", isFit);
-
     const H_PAD = 3;
     const coords = points.map((p, i) => {
       const x = points.length === 1 ? 50 : H_PAD + (i / (points.length - 1)) * (100 - 2 * H_PAD);
       const y = 100 - (Math.min(SCALE_MAX, p.aqi) / SCALE_MAX) * 100;
       return { x, y };
     });
-
     const polyline = document.createElementNS(ns, "polyline");
     polyline.setAttribute("points", coords.map(c => `${c.x},${c.y}`).join(" "));
     polyline.setAttribute("fill", "none");
@@ -467,19 +342,16 @@
     polyline.setAttribute("vector-effect", "non-scaling-stroke");
     polyline.style.color = "var(--border-strong)";
     timelineLine.appendChild(polyline);
-
     coords.forEach(({ x }) => {
       const vLine = document.createElement("span");
       vLine.style.left = x + "%";
       timelineGridV.appendChild(vLine);
     });
-
     points.forEach((p, i) => {
       const category = categoryFor(p.aqi);
       const { x, y } = coords[i];
       const hex = hexOf(category.color);
       const heightPct = 100 - y;
-
       const valueTag = document.createElement("span");
       valueTag.className = "timeline_value";
       valueTag.style.left = x + "%";
@@ -487,7 +359,6 @@
       valueTag.innerHTML =
         `<strong class="tv_aqi">${p.aqi}</strong>` +
         `<span class="tv_sub">${category.label} · ${Math.round(convertTemp(p.tempC, activeUnit))}${unitSymbol(activeUnit)}</span>`;
-
       const dot = document.createElement("button");
       dot.type = "button";
       dot.className = "timeline_point";
@@ -500,18 +371,15 @@
       dot.addEventListener("focus", () => showHoverBar(x, heightPct, hex, valueTag));
       dot.addEventListener("mouseleave", () => hideHoverBar(valueTag));
       dot.addEventListener("blur", () => hideHoverBar(valueTag));
-
       const labelTag = document.createElement("span");
       labelTag.className = "timeline_label";
       labelTag.textContent = p.label;
       labelTag.style.left = x + "%";
-
       timelineTrack.appendChild(valueTag);
       timelineTrack.appendChild(dot);
       timelineLabels.appendChild(labelTag);
     });
   }
-
   function showHoverBar(xPct, heightPct, hex, valueTag) {
     timelineHoverBar.style.left = xPct + "%";
     timelineHoverBar.style.height = heightPct + "%";
@@ -519,12 +387,10 @@
     timelineHoverBar.classList.add("is_visible");
     if (valueTag) valueTag.classList.add("is_visible");
   }
-
   function hideHoverBar(valueTag) {
     timelineHoverBar.classList.remove("is_visible");
     if (valueTag) valueTag.classList.remove("is_visible");
   }
-
   function selectPoint(point, index, dotEl) {
     [...timelineTrack.querySelectorAll(".timeline_point")].forEach(d => d.classList.remove("is_selected"));
     dotEl.classList.add("is_selected");
@@ -541,36 +407,21 @@
     );
     forecastHint.textContent = `Showing the forecast for ${point.fullLabel}. Select "Now" or reload to return to live conditions.`;
   }
-
   let currentRange = "next24";
   let lastForecastPoints = [];
-
-<<<<<<< HEAD
   async function refreshTimeline(range) {
     lastForecastPoints = await buildForecast(range);
     renderTimeline(lastForecastPoints);
   }
-
   forecastSwitch.addEventListener("click", async (e) => {
-=======
-  function refreshTimeline(range) {
-    lastForecastPoints = buildForecast(range);
-    renderTimeline(lastForecastPoints);
-  }
-
-  forecastSwitch.addEventListener("click", (e) => {
->>>>>>> 9c111cf19b5e87c6107cdd85d022257c3ca1aac0
     const btn = e.target.closest(".range_btn");
     if (!btn) return;
     currentRange = btn.dataset.range;
     [...forecastSwitch.children].forEach(c => c.classList.toggle("is_active", c === btn));
-<<<<<<< HEAD
     await refreshTimeline(currentRange);
     forecastHint.textContent = `Showing the forecast for ${RANGE_LABELS[currentRange]}. Hover or select a point to preview that reading.`;
   });
-
   const SYNC_INTERVAL_MS = 5 * 60 * 1000; // re-poll the API every 5 minutes
-
   async function syncLive() {
     liveReading = await getCurrentReading();
     renderCurrent(liveReading);
@@ -578,33 +429,13 @@
     renderHistoryTable();
     await refreshTimeline(currentRange);
   }
-
   async function init() {
     buildYAxisAndGrid();
     await syncLive();
-=======
-    refreshTimeline(currentRange);
-    forecastHint.textContent = `Showing the forecast for ${RANGE_LABELS[currentRange]}. Hover or select a point to preview that reading.`;
-  });
-
-  function init() {
-    liveReading = getCurrentReading();
-    renderCurrent(liveReading);
-    buildHistoryData();
-    renderHistoryTable();
-    buildYAxisAndGrid();
-    refreshTimeline(currentRange);
->>>>>>> 9c111cf19b5e87c6107cdd85d022257c3ca1aac0
-
     window.addEventListener("resize", () => {
       renderTimeline(lastForecastPoints);
     });
-<<<<<<< HEAD
-
     setInterval(syncLive, SYNC_INTERVAL_MS);
-=======
->>>>>>> 9c111cf19b5e87c6107cdd85d022257c3ca1aac0
   }
-
   init();
 })();
