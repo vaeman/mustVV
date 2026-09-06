@@ -16,7 +16,7 @@
   <p>1. Fire Data from Satellites</p>
   <p>2. Local sensor data</p>
   <p>3. Wind Speeds</p>
-
+<p>to accurately predict the future AQI. The raw pollutant readings are resampled to be sorted on an hourly basis. The test / train data was split on the basis of timeline, as randomly split test/train data will not help the model.</p>
 
 <h2>Output</h2>
 
