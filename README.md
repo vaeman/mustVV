@@ -13,9 +13,9 @@
 <h2>Methodology</h2>
 
 <p>Our Model works on 3 independent data sources: </p>
-  1. Fire Data from Satellites
-  2. Local sensor data
-  3. Wind Speeds
+  <p>1. Fire Data from Satellites</p>
+  <p>2. Local sensor data</p>
+  <p>3. Wind Speeds</p>
 
 
 <h2>Output</h2>
