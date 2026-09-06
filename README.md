@@ -1,2 +1,4 @@
-<h1>Delhi NC<span style=color"blue"><h1>AIR<h1></span></h1>
-<h2>Realtime AQI Forecasting system for Delhi NCR</h2>
+<h1>Delhi NCAir</h1>
+<h2>Realtime AQI & Weather Forecasting system for Delhi NCR</h2>
+
+<p>A Machine Learning based algorithm that can accurately predict the AQI of the city for the next 72 hours.</p>
