@@ -136,11 +136,24 @@
   const HISTORY_DAYS = 3;
   let historyData = [];
 
+<<<<<<< HEAD
   async function buildHistoryData() {
     const res = await fetch(`/api/history?days=${HISTORY_DAYS}`);
     if (!res.ok) throw new Error("history fetch failed");
     const data = await res.json();
     historyData = data.map(d => ({ date: new Date(d.date), aqi: d.aqi, tempC: d.tempC }));
+=======
+  function buildHistoryData() {
+    historyData = [];
+    let aqiWalk = liveReading ? liveReading.aqi : 150;
+    for (let i = 1; i <= HISTORY_DAYS; i++) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      aqiWalk = Math.max(20, Math.min(400, aqiWalk + (Math.random() * 60 - 30)));
+      const tempC = 24 + Math.round(Math.random() * 10 - 5);
+      historyData.push({ date, aqi: Math.round(aqiWalk), tempC });
+    }
+>>>>>>> 9c111cf19b5e87c6107cdd85d022257c3ca1aac0
   }
 
   function renderHistoryTable() {
@@ -277,10 +290,23 @@
     windNeedle.style.transform = `rotate(${directionDeg + 180}deg)`;
   }
 
+<<<<<<< HEAD
   async function getCurrentReading() {
     const res = await fetch("/api/current");
     if (!res.ok) throw new Error("current fetch failed");
     return res.json();
+=======
+  function getCurrentReading() {
+    const aqi = 150 + Math.round(Math.sin(Date.now() / 5.4e6) * 90 + (Math.random() * 20 - 10));
+    return {
+      aqi: Math.max(15, aqi),
+      pollutant: POLLUTANTS[Math.floor(Math.random() * POLLUTANTS.length)],
+      tempC: 26 + Math.round(Math.random() * 8 - 4),
+      feelsC: 27 + Math.round(Math.random() * 8 - 4),
+      windSpeed: 6 + Math.random() * 14,
+      windDir: Math.random() * 360
+    };
+>>>>>>> 9c111cf19b5e87c6107cdd85d022257c3ca1aac0
   }
 
   const aqiCategoryEl = document.getElementById("aqiCategory");
@@ -371,6 +397,41 @@
     if (!res.ok) throw new Error("forecast fetch failed");
     const data = await res.json();
     return data.map(pointFrom);
+
+  function walk(value) {
+    return Math.max(20, Math.min(430, value + (Math.random() * 50 - 25)));
+  }
+
+  function pointFrom(date, value, hoursFromNow) {
+    return {
+      aqi: Math.round(value),
+      label: String(hoursFromNow).padStart(2, "0"),
+      fullLabel: date.toLocaleDateString([], { weekday: "long", month: "short", day: "numeric" }) +
+        ", " + date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }),
+      tempC: liveReading.tempC + Math.round(Math.random() * 6 - 3),
+      feelsC: liveReading.feelsC + Math.round(Math.random() * 6 - 3),
+      windSpeed: 4 + Math.random() * 16,
+      windDir: Math.random() * 360,
+      pollutant: POLLUTANTS[Math.floor(Math.random() * POLLUTANTS.length)]
+    };
+  }
+
+  function buildContinuousHours(count) {
+    const points = [];
+    let value = liveReading.aqi;
+    for (let i = 0; i < count; i++) {
+      value = walk(value);
+      const date = new Date();
+      date.setMinutes(0, 0, 0);
+      date.setHours(date.getHours() + i);
+      points.push(pointFrom(date, value, i));
+    }
+    return points;
+  }
+
+  function buildForecast(range) {
+    return range === "next72" ? buildContinuousHours(72) : buildContinuousHours(24);
+
   }
 
   function renderTimeline(points) {
@@ -484,16 +545,26 @@
   let currentRange = "next24";
   let lastForecastPoints = [];
 
+<<<<<<< HEAD
   async function refreshTimeline(range) {
     lastForecastPoints = await buildForecast(range);
     renderTimeline(lastForecastPoints);
   }
 
   forecastSwitch.addEventListener("click", async (e) => {
+=======
+  function refreshTimeline(range) {
+    lastForecastPoints = buildForecast(range);
+    renderTimeline(lastForecastPoints);
+  }
+
+  forecastSwitch.addEventListener("click", (e) => {
+>>>>>>> 9c111cf19b5e87c6107cdd85d022257c3ca1aac0
     const btn = e.target.closest(".range_btn");
     if (!btn) return;
     currentRange = btn.dataset.range;
     [...forecastSwitch.children].forEach(c => c.classList.toggle("is_active", c === btn));
+<<<<<<< HEAD
     await refreshTimeline(currentRange);
     forecastHint.textContent = `Showing the forecast for ${RANGE_LABELS[currentRange]}. Hover or select a point to preview that reading.`;
   });
@@ -511,12 +582,28 @@
   async function init() {
     buildYAxisAndGrid();
     await syncLive();
+=======
+    refreshTimeline(currentRange);
+    forecastHint.textContent = `Showing the forecast for ${RANGE_LABELS[currentRange]}. Hover or select a point to preview that reading.`;
+  });
+
+  function init() {
+    liveReading = getCurrentReading();
+    renderCurrent(liveReading);
+    buildHistoryData();
+    renderHistoryTable();
+    buildYAxisAndGrid();
+    refreshTimeline(currentRange);
+>>>>>>> 9c111cf19b5e87c6107cdd85d022257c3ca1aac0
 
     window.addEventListener("resize", () => {
       renderTimeline(lastForecastPoints);
     });
+<<<<<<< HEAD
 
     setInterval(syncLive, SYNC_INTERVAL_MS);
+=======
+>>>>>>> 9c111cf19b5e87c6107cdd85d022257c3ca1aac0
   }
 
   init();
