@@ -12,7 +12,11 @@
 
 <h2>Methodology</h2>
 
-<p>The model works on feeding the data with a time </p>
+<p>Our Model works on 3 independent data sources: </p>
+<li>
+  <ul><p>"HELLO"</p></ul>
+  <ul><p>"HELLO"</p></ul>
+</li>
 
 <h2>Output</h2>
 
